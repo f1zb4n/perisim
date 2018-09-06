@@ -75,7 +75,7 @@ public class SFTPServiceTest {
         assertThat(sftpService.isRunning(), is(true));
         verify(mockAppender, atLeastOnce()).doAppend(captorLoggingEvent.capture());
         List<LoggingEvent> loggingEvents = captorLoggingEvent.getAllValues();
-        assertTrue(loggingEvents.stream().anyMatch(loggingEvent -> loggingEvent.getFormattedMessage().contains("AuthMethod: Password")));
+        assertTrue(loggingEvents.stream().anyMatch(loggingEvent -> loggingEvent.getFormattedMessage().contains("AuthMethods: Password")));
     }
 
     @Test
@@ -92,7 +92,7 @@ public class SFTPServiceTest {
         assertThat(sftpService.isRunning(), is(true));
         verify(mockAppender, atLeastOnce()).doAppend(captorLoggingEvent.capture());
         List<LoggingEvent> loggingEvents = captorLoggingEvent.getAllValues();
-        assertTrue(loggingEvents.stream().anyMatch(loggingEvent -> loggingEvent.getFormattedMessage().contains("AuthMethod: PublicKey")));
+        assertTrue(loggingEvents.stream().anyMatch(loggingEvent -> loggingEvent.getFormattedMessage().contains("AuthMethods: PublicKey, Password")));
     }
 
     @Test

@@ -2,10 +2,12 @@ package de.clustscape.perisim.service.sftp;
 
 import de.clustscape.perisim.service.PerisimService;
 import org.apache.sshd.common.file.virtualfs.VirtualFileSystemFactory;
+import org.apache.sshd.common.util.OsUtils;
 import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.auth.pubkey.StaticPublickeyAuthenticator;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 import org.apache.sshd.server.session.ServerSession;
+import org.apache.sshd.server.shell.ProcessShellFactory;
 import org.apache.sshd.server.subsystem.sftp.SftpSubsystemFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +64,7 @@ public class SFTPService implements PerisimService {
             sftpServer.setKeyPairProvider(new SimpleGeneratorHostKeyProvider());
             sftpServer.setSubsystemFactories(Collections.singletonList(new SftpSubsystemFactory()));
 
-            // configure authentication method
+            // configure authentication method(s)
             if (publicKeyAuthenticationEnabled) {
                 sftpServer.setPublickeyAuthenticator(new StaticPublickeyAuthenticator(true) {
                     @Override
@@ -70,16 +72,16 @@ public class SFTPService implements PerisimService {
                         super.handleAcceptance(username, key, session);
                     }
                 });
-            } else {
-                sftpServer.setPasswordAuthenticator((user, pass, session) -> username.equals(user) && password.equals(pass));
             }
+
+            sftpServer.setPasswordAuthenticator((user, pass, session) -> username.equals(user) && password.equals(pass));
 
             VirtualFileSystemFactory virtualFileSystemFactory = new VirtualFileSystemFactory();
             virtualFileSystemFactory.setUserHomeDir(username, new File(homedir).toPath());
             sftpServer.setFileSystemFactory(virtualFileSystemFactory);
 
-            String authMethod = publicKeyAuthenticationEnabled ? "PublicKey" : "Password";
-            LOGGER.info("Port: {}, User: {}, AuthMethod: {}", port, username, authMethod);
+            String authMethod = publicKeyAuthenticationEnabled ? "PublicKey, Password" : "Password";
+            LOGGER.info("Port: {}, User: {}, AuthMethods: {}", port, username, authMethod);
 
             // start the server
             try {
