@@ -1,5 +1,7 @@
 /target/
 !.mvn/wrapper/maven-wrapper.jar
+*.log
+*.log.*.gz
 
 ### STS ###
 .apt_generated
@@ -23,4 +25,6 @@
 /dist/
 /nbdist/
 /.nb-gradle/
-*.log
+
+### VS Code ###
+.vscode

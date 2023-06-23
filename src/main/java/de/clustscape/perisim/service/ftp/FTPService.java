@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.nio.file.Paths;
 
 /**
  * FTP service which starts an embedded FTP server.
@@ -60,7 +61,7 @@ public class FTPService implements PerisimService {
             // define SSL configuration
             if (sslEnabled) {
                 SslConfigurationFactory ssl = new SslConfigurationFactory();
-                ssl.setKeystoreFile(new File(keystoreFile));
+                ssl.setKeystoreFile(Paths.get(keystoreFile).toFile());
                 ssl.setKeystorePassword(keystorePassword);
                 factory.setSslConfiguration(ssl.createSslConfiguration());
                 factory.setImplicitSsl(true);
@@ -69,7 +70,7 @@ public class FTPService implements PerisimService {
             // replace the default listener
             serverFactory.addListener("default", factory.createListener());
             PropertiesUserManagerFactory userManagerFactory = new PropertiesUserManagerFactory();
-            userManagerFactory.setFile(new File(usersFile));
+            userManagerFactory.setFile(Paths.get(usersFile).toFile());
             userManagerFactory.setPasswordEncryptor(new ClearTextPasswordEncryptor());
             serverFactory.setUserManager(userManagerFactory.createUserManager());
 

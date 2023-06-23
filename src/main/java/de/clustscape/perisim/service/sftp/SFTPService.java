@@ -2,13 +2,11 @@ package de.clustscape.perisim.service.sftp;
 
 import de.clustscape.perisim.service.PerisimService;
 import org.apache.sshd.common.file.virtualfs.VirtualFileSystemFactory;
-import org.apache.sshd.common.util.OsUtils;
 import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.auth.pubkey.StaticPublickeyAuthenticator;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 import org.apache.sshd.server.session.ServerSession;
-import org.apache.sshd.server.shell.ProcessShellFactory;
-import org.apache.sshd.server.subsystem.sftp.SftpSubsystemFactory;
+import org.apache.sshd.sftp.server.SftpSubsystemFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.security.PublicKey;
 import java.util.Collections;
 
@@ -77,11 +76,12 @@ public class SFTPService implements PerisimService {
             sftpServer.setPasswordAuthenticator((user, pass, session) -> username.equals(user) && password.equals(pass));
 
             VirtualFileSystemFactory virtualFileSystemFactory = new VirtualFileSystemFactory();
-            virtualFileSystemFactory.setUserHomeDir(username, new File(homedir).toPath());
+            Path userHomeDir = new File(homedir).toPath();
+            virtualFileSystemFactory.setUserHomeDir(username, userHomeDir);
             sftpServer.setFileSystemFactory(virtualFileSystemFactory);
 
             String authMethod = publicKeyAuthenticationEnabled ? "PublicKey, Password" : "Password";
-            LOGGER.info("Port: {}, User: {}, AuthMethods: {}", port, username, authMethod);
+            LOGGER.info("Port: {}, User: {}, HomeDir: {}, AuthMethods: {}", port, username, userHomeDir.toAbsolutePath(), authMethod);
 
             // start the server
             try {
